@@ -1,0 +1,42 @@
+listen: ":8080"
+log_level: info
+read_header_timeout: 5s
+idle_timeout: 90s
+shutdown_timeout: 10s
+
+sites:
+  - hosts:
+      - go.example.internal
+      - goproxy.example.internal
+    upstream: https://proxy.golang.org
+    follow_redirects: true
+    max_redirects: 10
+    timeout: 30s
+    cache_control: public, max-age=3600
+    paths:
+      - regex: '\.zip$'
+        timeout: 5m
+        cache_control: public, max-age=315360000, immutable
+      - regex: '\.mod$'
+        timeout: 30s
+        cache_control: public, max-age=315360000, immutable
+      - regex: '/@v/'
+        timeout: 30s
+        cache_control: public, max-age=60
+
+  - hosts:
+      - registry.example.internal
+    upstream: https://registry-1.docker.io
+    follow_redirects: true
+    max_redirects: 10
+    timeout: 60s
+    paths:
+      - regex: '/blobs/sha256:[a-f0-9]+$'
+        timeout: 10m
+        cache_control: public, max-age=315360000, immutable
+      - regex: '/manifests/sha256:[a-f0-9]+$'
+        timeout: 60s
+        cache_control: public, max-age=315360000, immutable
+      - prefix: /v2/
+        timeout: 60s
+        cache_control: public, max-age=60

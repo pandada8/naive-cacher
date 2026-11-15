@@ -1,0 +1,6 @@
+/naive-cacher
+/bin/
+*.test
+*.out
+.idea/
+.vscode/
